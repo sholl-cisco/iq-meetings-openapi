@@ -1,0 +1,87 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "CIQ Meetings Dashboard API",
+    "description": "Upload endpoint for CIQ Services PM Engagement Tracker workbooks.",
+    "version": "1.4.1"
+  },
+  "servers": [
+    {
+      "url": "https://colemaj-lnx-01.cisco.com/meetings-dashboard",
+      "description": "Production Dashboard Host"
+    }
+  ],
+  "paths": {
+    "/api/upload": {
+      "post": {
+        "operationId": "upload_engagement_tracker",
+        "summary": "Uploads the CIQ Services PM Engagement Tracker Excel file",
+        "description": "Receives the generated two-tab Services PM Engagement Tracker.xlsx workbook and ingests it into the dashboard database.",
+        "parameters": [
+          {
+            "name": "X-Submitter",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "Steve Holl"
+            },
+            "description": "Submitter name for tracking"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The Services PM Engagement Tracker.xlsx spreadsheet file"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Workbook uploaded and ingested successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "meetings_inserted": { "type": "integer", "example": 89 }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid file format or corrupt spreadsheet" },
+          "401": { "description": "Missing or invalid API key" }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  }
+}
